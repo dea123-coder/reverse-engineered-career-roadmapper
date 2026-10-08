@@ -1,0 +1,8 @@
+[build]
+  # Run pnpm through corepack so the build works even where pnpm isn't on PATH,
+  # and install dependencies first when node_modules is missing.
+  command = "corepack pnpm install --frozen-lockfile && corepack pnpm run build"
+  publish = ".next"
+
+[build.environment]
+  COREPACK_ENABLE_DOWNLOAD_PROMPT = "0"
