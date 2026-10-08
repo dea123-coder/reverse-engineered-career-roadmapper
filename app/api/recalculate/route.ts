@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { generateWithGemini } from "@/lib/openrouter";
 
 export const runtime = "nodejs";
 
@@ -16,20 +16,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.OPENROUTER_API_KEY) {
       return NextResponse.json(
-        { error: "Gemini API key is not configured" },
+        { error: "OpenRouter API key is not configured" },
         { status: 500 }
       );
     }
-
-    const genAI = new GoogleGenerativeAI(
-      process.env.GEMINI_API_KEY
-    );
-
-    const model = genAI.getGenerativeModel({
-      model: "gemini-flash-lite-latest",
-    });
 
     const prompt = `
 You are an expert career roadmap planner.
@@ -80,13 +72,11 @@ Each node should contain:
 }
 `;
 
-    console.log("Recalculating roadmap...");
+    console.log("Recalculating roadmap with OpenRouter Gemini...");
 
-    const result = await model.generateContent(prompt);
+    const text = await generateWithGemini(prompt);
 
-    const text = result.response.text().trim();
-
-    let cleaned = text
+    const cleaned = text
       .replace(/^```json\s*/i, "")
       .replace(/^```\s*/i, "")
       .replace(/\s*```$/i, "")

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { generateWithGemini } from "@/lib/openrouter";
 
 export const runtime = "nodejs";
 
@@ -16,20 +16,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.OPENROUTER_API_KEY) {
       return NextResponse.json(
-        { error: "Gemini API key is not configured" },
+        { error: "OpenRouter API key is not configured" },
         { status: 500 }
       );
     }
-
-    const genAI = new GoogleGenerativeAI(
-      process.env.GEMINI_API_KEY
-    );
-
-    const model = genAI.getGenerativeModel({
-      model: "gemini-flash-lite-latest",
-    });
 
     const prompt = `
 You are an expert career coach.
@@ -56,11 +48,9 @@ Keep it concise, realistic for a student, and directly actionable.
 Return plain text only. Do not use JSON.
 `;
 
-    console.log("Calling Gemini for node advice...");
+    console.log("Calling OpenRouter Gemini for node advice...");
 
-    const result = await model.generateContent(prompt);
-
-    const advice = result.response.text().trim();
+    const advice = await generateWithGemini(prompt);
 
     console.log("Node advice received:", advice.length);
 

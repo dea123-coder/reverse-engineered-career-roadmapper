@@ -869,10 +869,10 @@ const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
           </div>
         </div>
 
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
           {/* GRAPH */}
           <section
-            className={`relative min-h-[680px] overflow-hidden rounded-[22px] border border-white/[0.1] bg-[#0f0c1b] shadow-[0_25px_80px_rgba(0,0,0,0.22)] ${
+            className={`relative min-h-[520px] overflow-hidden rounded-[22px] sm:min-h-[680px] border border-white/[0.1] bg-[#0f0c1b] shadow-[0_25px_80px_rgba(0,0,0,0.22)] ${
               isDragging ? 'cursor-grabbing' : 'cursor-grab'
             }`}
             aria-label="Interactive career roadmap"

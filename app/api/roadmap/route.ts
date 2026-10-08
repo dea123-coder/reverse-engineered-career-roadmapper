@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { generateWithGemini } from "@/lib/openrouter";
 
 export const runtime = "nodejs";
 
@@ -16,23 +16,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.OPENROUTER_API_KEY) {
       return NextResponse.json(
-        { error: "Gemini API key is not configured" },
+        { error: "OpenRouter API key is not configured" },
         { status: 500 }
       );
     }
 
-    const genAI = new GoogleGenerativeAI(
-      process.env.GEMINI_API_KEY
-    );
-
-    const model = genAI.getGenerativeModel({
-     model: "gemini-flash-lite-latest",
-    });
-
     const prompt = `
-Create a career roadmap for:
+Create a personalized career roadmap for:
 
 Target role: ${targetRole}
 Hours per week: ${hoursPerWeek}
@@ -52,19 +44,29 @@ Format:
   "projects": [],
   "skills": []
 }
+
+Each roadmap node should preferably contain:
+{
+  "id": "unique-id",
+  "title": "skill or milestone",
+  "type": "category",
+  "phase": 0,
+  "hours": "10 hrs",
+  "status": "available",
+  "dependencies": []
+}
+
+Make the roadmap realistic, specific to the target role, and suitable for a student.
 `;
 
-    console.log("Calling Gemini...");
+    console.log("Calling OpenRouter Gemini...");
 
-    const result = await model.generateContent(prompt);
+    const text = await generateWithGemini(prompt);
 
-    console.log("Gemini response received");
+    console.log("OpenRouter Gemini response received");
+    console.log("AI text length:", text.length);
 
-    const text = result.response.text().trim();
-
-    console.log("Gemini text length:", text.length);
-
-    let cleaned = text
+    const cleaned = text
       .replace(/^```json\s*/i, "")
       .replace(/^```\s*/i, "")
       .replace(/\s*```$/i, "")
@@ -74,14 +76,14 @@ Format:
 
     return NextResponse.json(roadmap);
   } catch (error) {
-    console.error("GEMINI ERROR:", error);
+    console.error("ROADMAP AI ERROR:", error);
 
     return NextResponse.json(
       {
         error:
           error instanceof Error
             ? error.message
-            : "Unknown Gemini error",
+            : "Failed to generate roadmap",
       },
       { status: 500 }
     );
